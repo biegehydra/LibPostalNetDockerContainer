@@ -12,7 +12,14 @@ public class LibPostalService : ILibPostalService
     public LibPostalService(ILogger<LibPostalService> logger, IConfiguration config)
     {
         _logger = logger;
-        _libPostal = LibPostal.GetInstance(config["libpostal:datadir"]);
+        var dataDir = config["libpostal:datadir"];
+        Console.WriteLine($"DataDir: {dataDir}");
+        var currentDir = Directory.GetCurrentDirectory();
+        Console.WriteLine($"CurrentDir: {currentDir}");
+        dataDir = Path.Combine(Directory.GetParent(currentDir)!.FullName, dataDir!);
+        Console.WriteLine($"Combine: {dataDir}");     
+
+        _libPostal = LibPostal.GetInstance(dataDir);
         _libPostal.LoadParser();
         _libPostal.LoadLanguageClassifier();
         _libPostal.PrintFeatures = true;
