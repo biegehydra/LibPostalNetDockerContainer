@@ -17,18 +17,18 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
-COPY ["LinuxDockerApi/LinuxDockerApi.csproj", "LinuxDockerApi/"]
+COPY ["LibPostalApi/LibPostalApi.csproj", "LibPostalApi/"]
 COPY ["LibPostalNet/LibPostalNet.csproj", "LibPostalNet/"]
-RUN dotnet restore "LinuxDockerApi/LinuxDockerApi.csproj"
+RUN dotnet restore "LibPostalApi/LibPostalApi.csproj"
 COPY . .
-WORKDIR "/src/LinuxDockerApi"
-RUN dotnet build "LinuxDockerApi.csproj" -c Release -o /app/build
+WORKDIR "/src/LibPostalApi"
+RUN dotnet build "LibPostalApi.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "LinuxDockerApi.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "LibPostalApi.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 # Use libpostal_base as the starting point for the final image
 FROM libpostal_base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "LinuxDockerApi.dll"]
+ENTRYPOINT ["dotnet", "LibPostalApi.dll"]
