@@ -11,6 +11,9 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton<ILibPostalService, LibPostalService>();
 
+builder.Services.AddHealthChecks();
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -20,10 +23,19 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
-
-app.UseAuthorization();
-
 app.MapControllers();
+
+app.MapHealthChecks("/health");
+
+app.Use(async (context, next) =>
+{
+    if (context.Request.Path.StartsWithSegments("/health"))
+    {
+        Console.WriteLine($"Health check endpoint called at {DateTime.UtcNow}");
+    }
+
+    // Call the next middleware in the pipeline
+    await next.Invoke();
+});
 
 app.Run();
