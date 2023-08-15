@@ -26,11 +26,19 @@ if (app.Environment.IsDevelopment())
 app.MapControllers();
 
 app.MapHealthChecks("/health");
-
 app.Use(async (context, next) =>
 {
     if (context.Request.Path.StartsWithSegments("/health"))
     {
+        var libPostal = app.Services.GetRequiredService<ILibPostalService>();
+        var testResult = libPostal.ParseAddress(TestData.TestAddress);
+        if (testResult == null)
+        {
+            context.Response.StatusCode = 500;
+            await context.Response.WriteAsync("LibPostalApi is not healthy");
+            Console.WriteLine($"Health check endpoint LibPostalApi api is UNHEALTHY");
+            return;
+        }
         Console.WriteLine($"Health check endpoint called at {DateTime.UtcNow}");
     }
 
@@ -39,3 +47,8 @@ app.Use(async (context, next) =>
 });
 
 app.Run();
+
+public static class TestData
+{
+    public static readonly List<string> TestAddress = new () { "8000 Southern Breeze Dr Orlando FL 32836" };
+}

@@ -1,7 +1,7 @@
 using LibPostalApi.Interfaces;
 using LibPostalApi.Models;
-using LibPostalNet;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 namespace LibPostalApi.Controllers
 {
@@ -17,25 +17,36 @@ namespace LibPostalApi.Controllers
         }
 
         [HttpPost]
-        public ExpandAddressesResponse ExpandAddresses([FromBody] ExpandAddressesRequest request)
+        public IActionResult ExpandAddresses([FromBody] ExpandAddressesRequest? request)
         {
-            var responses = new List<AddressExpansionResponse>();
-            foreach (var addresses in request.Addresses)
+            if (request?.Addresses is not {Count: > 0})
             {
-                responses.Add(_libPostal.ExpandAddress(addresses));
+                return BadRequest("No addresses in payload. Nothing to expand.");
             }
-            return new ExpandAddressesResponse(responses);
+
+            var results = _libPostal.ExpandAddress(request.Addresses, request.ExpandOptions);
+            if (results.Results == null)
+            {
+                return StatusCode((int)HttpStatusCode.InternalServerError, "An internal server error occurred.");
+            }
+
+            return Ok(new ExpandAddressesResponse(results.Results, request.Addresses.Count, results.Successes, results.Failures));
         }
 
         [HttpPost]
-        public ParseAddressesResponse ParseAddresses([FromBody] ParseAddressesRequest request)
+        public IActionResult ParseAddresses([FromBody] ParseAddressesRequest? request)
         {
-            var responses = new List<AddressParserResponse>();
-            foreach (var addresses in request.Addresses)
+            if (request?.Addresses is not { Count: > 0 })
             {
-                responses.Add(_libPostal.ParseAddress(addresses));
+                return BadRequest("No addresses in payload. Nothing to expand.");
             }
-            return new ParseAddressesResponse(responses);
+            var results = _libPostal.ParseAddress(request.Addresses, request.ParseOptions);
+            if (results.Results == null)
+            {
+                return StatusCode((int)HttpStatusCode.InternalServerError, "An internal server error occurred.");
+            }
+
+            return Ok(new ParseAddressesResponse(results.Results, request.Addresses.Count, results.Successes, results.Failures));
         }
     }
 }

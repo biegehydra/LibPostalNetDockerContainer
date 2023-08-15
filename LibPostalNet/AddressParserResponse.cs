@@ -1,9 +1,6 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Xml;
 
 namespace LibPostalNet
 {
@@ -41,6 +38,8 @@ namespace LibPostalNet
                 _InputString = IntPtr.Zero;
             }
         }
+
+        public string Input => MarshalUTF8.PtrToString(_InputString);
 
         public long NumComponents
         {
@@ -89,9 +88,9 @@ namespace LibPostalNet
                 var _results = new List<KeyValuePair<string, string>>();
 
                 IntPtr
-                    labels = ((UnsafeNativeMethods*)_Instance)->labels,
-                    components = ((UnsafeNativeMethods*)_Instance)->components
-                ;
+                    labels = ((UnsafeNativeMethods*) _Instance)->labels,
+                    components = ((UnsafeNativeMethods*) _Instance)->components
+                    ;
 
                 long n = NumComponents;
                 for (int x = 0; x < n; x++)
@@ -102,39 +101,9 @@ namespace LibPostalNet
                         MarshalUTF8.PtrToString(Marshal.ReadIntPtr(components, offset))
                     ));
                 }
+
                 return _results;
             }
-        }
-
-        public string ToJSON()
-        {
-            var json = new JObject();
-            var grp = Results.GroupBy(K => K.Key, V => V.Value, (key, g) => new { Key = key, Value = g.ToArray() });
-            foreach (var x in grp)
-            {
-                var values = new JArray();
-                foreach (var y in x.Value)
-                {
-                    values.Add(new JValue(y));
-                }
-                json.Add(new JProperty(x.Key, values));
-            }
-            return json.ToString(Newtonsoft.Json.Formatting.None);
-        }
-
-        public string ToXML()
-        {
-            XmlDocument doc = new XmlDocument();
-            doc.AppendChild(doc.CreateXmlDeclaration("1.0", string.Empty, string.Empty));
-            var address = doc.CreateElement("address");
-            foreach (var x in Results)
-            {
-                var elem = doc.CreateElement(x.Key);
-                elem.AppendChild(doc.CreateTextNode(x.Value));
-                address.AppendChild(elem);
-            }
-            doc.AppendChild(address);
-            return doc.OuterXml;
         }
     }
 }

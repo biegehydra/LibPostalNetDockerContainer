@@ -1,9 +1,10 @@
-﻿using LibPostalNet;
+﻿using LibPostalApi.Models;
+using LibPostalNet;
 
 namespace LibPostalApi.Interfaces;
 
 public interface ILibPostalService
 {
-    AddressParserResponse ParseAddress(string address);
-    AddressExpansionResponse ExpandAddress(string address);
+    (AddressParserResponse[]? Results, int Successes, int Failures) ParseAddress(List<string> addresses, ParseOptions? dtoOptions);
+    (AddressExpansionResponse[]? Results, int Successes, int Failures) ExpandAddress(List<string> addresses, ExpandOptions? dtoOptions);
 }

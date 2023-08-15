@@ -1,7 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Runtime.InteropServices;
-using System.Xml;
 
 namespace LibPostalNet
 {
@@ -11,6 +9,7 @@ namespace LibPostalNet
         private IntPtr _InputString;
         private ulong _NumExpansions;
 
+        public string Input => MarshalUTF8.PtrToString(_InputString);
         public string[] Expansions { get; private set; }
 
         internal AddressExpansionResponse(string input, AddressExpansionOptions options)
@@ -48,31 +47,6 @@ namespace LibPostalNet
                 Marshal.FreeHGlobal(_InputString);
                 _InputString = IntPtr.Zero;
             }
-        }
-
-        public string ToJSON()
-        {
-            var json = new JArray();
-            foreach (var expansion in Expansions)
-            {
-                json.Add(new JValue(expansion));
-            }
-            return json.ToString(Newtonsoft.Json.Formatting.None);
-        }
-
-        public string ToXML()
-        {
-            XmlDocument doc = new XmlDocument();
-            doc.AppendChild(doc.CreateXmlDeclaration("1.0", string.Empty, string.Empty));
-            var address = doc.CreateElement("address");
-            foreach (var expansion in Expansions)
-            {
-                var elem = doc.CreateElement("expansion");
-                elem.AppendChild(doc.CreateTextNode(expansion));
-                address.AppendChild(elem);
-            }
-            doc.AppendChild(address);
-            return doc.OuterXml;
         }
     }
 }

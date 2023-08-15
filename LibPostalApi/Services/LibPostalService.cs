@@ -1,17 +1,15 @@
-﻿using LibPostalApi.Interfaces;
+﻿using LibPostalApi.ExtensionMethods;
+using LibPostalApi.Interfaces;
+using LibPostalApi.Models;
 using LibPostalNet;
 
 namespace LibPostalApi.Services;
 
 public class LibPostalService : ILibPostalService
 {
-    private readonly ILogger<LibPostalService> _logger;
     private readonly LibPostal _libPostal;
-    private readonly AddressParserOptions _addressParserOptions;
-    private readonly AddressExpansionOptions _addressExpansionOptions;
-    public LibPostalService(ILogger<LibPostalService> logger, IConfiguration config)
+    public LibPostalService(IConfiguration config)
     {
-        _logger = logger;
         var dataDir = config["libpostal:datadir"];
         Console.WriteLine($"DataDir: {dataDir}");
         var currentDir = Directory.GetCurrentDirectory();
@@ -23,80 +21,90 @@ public class LibPostalService : ILibPostalService
         _libPostal.LoadParser();
         _libPostal.LoadLanguageClassifier();
         _libPostal.PrintFeatures = true;
-        _addressParserOptions = _libPostal.GetAddressParserDefaultOptions();
-        _addressParserOptions.Country = "us";
-        _addressParserOptions.Language = "en";
-        _addressExpansionOptions = _libPostal.GetAddressExpansionDefaultOptions();
-        _addressExpansionOptions.Languages = new string[] { "en" };
     }
 
-    private void SetAllSettingsTrue()
+    public (AddressParserResponse[]? Results, int Successes, int Failures) ParseAddress(List<string> addresses, ParseOptions? dtoOptions)
     {
-        _addressExpansionOptions.Lowercase = true;
-        _addressExpansionOptions.ExpandNumex = true;
-        _addressExpansionOptions.TrimString = true;
-        _addressExpansionOptions.Decompose = true;
-        _addressExpansionOptions.DropEnglishPossessives = true;
-
-
-        _addressExpansionOptions.DeleteFinalPeriods = true;
-        _addressExpansionOptions.DeleteApostrophes = true;
-        _addressExpansionOptions.DeleteNumericHyphens = true;
-        _addressExpansionOptions.DeleteAcronymPeriods = true;
-        _addressExpansionOptions.DeleteWordHyphens = true;
-
-
-        _addressExpansionOptions.ReplaceNumericHyphens = true;
-        _addressExpansionOptions.RomanNumerals = true;
-        _addressExpansionOptions.StripAccents = true;
-        _addressExpansionOptions.DropParentheticals = true;
-        _addressExpansionOptions.Transliterate = true;
-        _addressExpansionOptions.SplitAlphaFromNumeric = true;
-        _addressExpansionOptions.LatinAscii = true;
-    }
-
-    private void SetAllSettingsFalse()
-    {
-        _addressExpansionOptions.Lowercase = true;
-        _addressExpansionOptions.ExpandNumex = false;
-        _addressExpansionOptions.TrimString = true;
-        _addressExpansionOptions.Decompose = true;
-        _addressExpansionOptions.DropEnglishPossessives = true;
-
-
-        _addressExpansionOptions.DeleteFinalPeriods = false;
-        _addressExpansionOptions.DeleteApostrophes = false;
-        _addressExpansionOptions.DeleteNumericHyphens = false;
-        _addressExpansionOptions.DeleteAcronymPeriods = false;
-        _addressExpansionOptions.DeleteWordHyphens = false;
-
-
-        _addressExpansionOptions.ReplaceNumericHyphens = false;
-        _addressExpansionOptions.RomanNumerals = false;
-        _addressExpansionOptions.StripAccents = false;
-        _addressExpansionOptions.DropParentheticals = false;
-        _addressExpansionOptions.Transliterate = false;
-        _addressExpansionOptions.SplitAlphaFromNumeric = false;
-        _addressExpansionOptions.LatinAscii = false;
-    }
-
-    public AddressParserResponse ParseAddress(string address)
-    {
-        return _libPostal.ParseAddress(address, _addressParserOptions);
-    }
-
-    private static int Count = 0;
-    public AddressExpansionResponse ExpandAddress(string address)
-    {
-        if (Count % 2 == 0)
+        try
         {
-            SetAllSettingsTrue();
+            var domainOptions = _libPostal.GetAddressParserDefaultOptions();
+
+            dtoOptions?.MapValuesTo(domainOptions);
+
+            var results = new AddressParserResponse[addresses.Count];
+
+            var successes = 0;
+            var failures = 0;
+
+            var i = 0;
+            foreach (var address in addresses)
+            {
+                try
+                {
+                    if (string.IsNullOrWhiteSpace(address))
+                    {
+                        failures++;
+                        continue;
+                    }
+                    var result = _libPostal.ParseAddress(address, domainOptions);
+                    results[i] = result;
+                    successes++;
+                }
+                catch (Exception ex)
+                {
+                    failures++;
+                    Console.WriteLine($"Error Inside Parse. Input: {addresses} : {ex}");
+                }
+            }
+            return (results, successes, failures);
         }
-        else
+        catch (Exception ex)
         {
-            SetAllSettingsFalse();
+            Console.WriteLine($"Error Outside Parse: {ex}");
+            return default;
         }
-        Count++;
-        return _libPostal.ExpandAddress(address, _addressExpansionOptions);
+    }
+
+    public (AddressExpansionResponse[]? Results, int Successes, int Failures) ExpandAddress(List<string> addresses, ExpandOptions? dtoOptions)
+    {
+        try
+        {
+            var domainOptions = _libPostal.GetAddressExpansionDefaultOptions();
+
+            dtoOptions?.MapValuesTo(domainOptions);
+
+            var results = new AddressExpansionResponse[addresses.Count];
+
+            var successes = 0;
+            var failures = 0;
+
+            var i = 0;
+
+            foreach (var address in addresses)
+            {
+                try
+                {
+                    if (string.IsNullOrWhiteSpace(address))
+                    {
+                        failures++;
+                        continue;
+                    }
+                    var result = _libPostal.ExpandAddress(address, domainOptions);
+                    results[i] = result;
+                    successes++;
+                }
+                catch (Exception ex)
+                {
+                    failures++;
+                    Console.WriteLine($"Error Inside Expand. Input: {addresses} : {ex}");
+                }
+            }
+            return (results, successes, failures);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error Outside Expand: {ex}");
+            return default;
+        }
     }
 }
