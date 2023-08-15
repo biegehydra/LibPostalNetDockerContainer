@@ -15,7 +15,12 @@ builder.Services.AddHealthChecks();
 
 
 var app = builder.Build();
-
+if (app.Environment.IsProduction())
+{
+    var port = Environment.GetEnvironmentVariable("PORT") ?? "80";
+    Console.WriteLine($"Port Is Null: {string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("PORT"))}");
+    builder.WebHost.UseUrls($"http://*:{port}");
+}
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -31,8 +36,9 @@ app.Use(async (context, next) =>
     if (context.Request.Path.StartsWithSegments("/health"))
     {
         var libPostal = app.Services.GetRequiredService<ILibPostalService>();
-        var testResult = libPostal.ParseAddress(TestData.TestAddress);
-        if (testResult == null)
+        var testParse = libPostal.ParseAddress(TestData.TestAddress);
+        var testExpand = libPostal.ParseAddress(TestData.TestAddress);
+        if (testParse.Results == null || testExpand.Results == null)
         {
             context.Response.StatusCode = 500;
             await context.Response.WriteAsync("LibPostalApi is not healthy");

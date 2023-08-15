@@ -3,7 +3,7 @@
 namespace LibPostalApi.Models;
 public record ParseAddressesRequest(List<string>? Addresses, ParseOptions? ParseOptions);
 public record ExpandAddressesRequest(List<string>? Addresses, ExpandOptions? ExpandOptions);
-public record ExpandAddressesResponse(AddressExpansionResponse[]? ParseResults, int AddressesReceived, int SuccessfullyParsedCount, int UnsuccessfullyParsedCount);
+public record ExpandAddressesResponse(AddressExpansionResponse[]? ExpandResults, int AddressesReceived, int SuccessfullyParsedCount, int UnsuccessfullyParsedCount);
 public record ParseAddressesResponse(AddressParserResponse[]? ParseResults, int AddressesReceived, int SuccessfullyExpandCount, int UnsuccessfullyExpandedCount);
 public record ParseOptions(string? Country, string? Language);
 

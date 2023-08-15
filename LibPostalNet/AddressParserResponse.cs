@@ -49,7 +49,7 @@ namespace LibPostalNet
             }
         }
 
-        public string[] Components
+        private string[] Components
         {
             get
             {
@@ -65,7 +65,7 @@ namespace LibPostalNet
             }
         }
 
-        public string[] Labels
+        private string[] Labels
         {
             get
             {

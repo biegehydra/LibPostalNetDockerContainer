@@ -49,6 +49,7 @@ public class LibPostalService : ILibPostalService
                     var result = _libPostal.ParseAddress(address, domainOptions);
                     results[i] = result;
                     successes++;
+                    i++;
                 }
                 catch (Exception ex)
                 {
@@ -92,6 +93,7 @@ public class LibPostalService : ILibPostalService
                     var result = _libPostal.ExpandAddress(address, domainOptions);
                     results[i] = result;
                     successes++;
+                    i++;
                 }
                 catch (Exception ex)
                 {
