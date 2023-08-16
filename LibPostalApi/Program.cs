@@ -33,7 +33,7 @@ app.MapControllers();
 app.MapHealthChecks("/health");
 app.Use(async (context, next) =>
 {
-    if (context.Request.Path.StartsWithSegments("/health"))
+    if (LibPostalService.Initialized && context.Request.Path.StartsWithSegments("/health"))
     {
         var libPostal = app.Services.GetRequiredService<ILibPostalService>();
         var testParse = libPostal.ParseAddress(TestData.TestAddress);

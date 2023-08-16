@@ -7,6 +7,7 @@ namespace LibPostalApi.Services;
 
 public class LibPostalService : ILibPostalService
 {
+    public static bool Initialized = false;
     private readonly LibPostal _libPostal;
     public LibPostalService(IConfiguration config)
     {
@@ -21,6 +22,7 @@ public class LibPostalService : ILibPostalService
         _libPostal.LoadParser();
         _libPostal.LoadLanguageClassifier();
         _libPostal.PrintFeatures = true;
+        Initialized = true;
     }
 
     public (AddressParserResponse[]? Results, int Successes, int Failures) ParseAddress(List<string> addresses, ParseOptions? dtoOptions)
