@@ -32,13 +32,13 @@ namespace LibPostalApi.Controllers
                 return BadRequest($"Too many addresses. Request had {request.Addresses.Count} addresses. Only 1000 addresses are allowed per request.");
             }
 
-            var results = _libPostal.ExpandAddress(request.Addresses, request.ExpandOptions);
-            if (results.Results == null)
+            var response = _libPostal.ExpandAddress(request.Addresses, request.ExpandOptions);
+            if (response?.ExpandResults == null)
             {
                 return StatusCode((int)HttpStatusCode.InternalServerError, "An internal server error occurred.");
             }
 
-            return Ok(new ExpandAddressesResponse(results.Results, request.Addresses.Count, results.Successes, results.Failures));
+            return Ok(response);
         }
 
         [HttpPost]
@@ -57,13 +57,13 @@ namespace LibPostalApi.Controllers
                 return BadRequest($"Too many addresses. Request had {request.Addresses.Count} addresses. Only 1000 addresses are allowed per request.");
             }
 
-            var results = _libPostal.ParseAddress(request.Addresses, request.ParseOptions);
-            if (results.Results == null)
+            var response = _libPostal.ParseAddress(request.Addresses, request.ParseOptions);
+            if (response?.ParseResults == null)
             {
                 return StatusCode((int)HttpStatusCode.InternalServerError, "An internal server error occurred.");
             }
 
-            return Ok(new ParseAddressesResponse(results.Results, request.Addresses.Count, results.Successes, results.Failures));
+            return Ok(response);
         }
     }
 }

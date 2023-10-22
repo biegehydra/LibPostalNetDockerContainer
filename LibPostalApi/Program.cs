@@ -39,7 +39,7 @@ app.Use(async (context, next) =>
         var libPostal = app.Services.GetRequiredService<ILibPostalService>();
         var testParse = libPostal.ParseAddress(TestData.TestAddress);
         var testExpand = libPostal.ParseAddress(TestData.TestAddress);
-        if (testParse.Results == null || testExpand.Results == null)
+        if (testParse?.ParseResults == null || testExpand?.ParseResults == null)
         {
             context.Response.StatusCode = 500;
             await context.Response.WriteAsync("LibPostalApi is not healthy");
@@ -49,7 +49,6 @@ app.Use(async (context, next) =>
         Console.WriteLine($"Health check endpoint called at {DateTime.UtcNow}");
     }
 
-    // Call the next middleware in the pipeline
     await next.Invoke();
 });
 

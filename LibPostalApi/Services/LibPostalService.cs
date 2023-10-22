@@ -16,7 +16,7 @@ public class LibPostalService : ILibPostalService
         var currentDir = Directory.GetCurrentDirectory();
         Console.WriteLine($"CurrentDir: {currentDir}");
         dataDir = Path.Combine(Directory.GetParent(currentDir)!.FullName, dataDir!);
-        Console.WriteLine($"Combine: {dataDir}");     
+        Console.WriteLine($"CombinedDir: {dataDir}");     
 
         _libPostal = LibPostal.GetInstance(dataDir);
         _libPostal.LoadParser();
@@ -25,7 +25,7 @@ public class LibPostalService : ILibPostalService
         Initialized = true;
     }
 
-    public (AddressParserResponse[]? Results, int Successes, int Failures) ParseAddress(List<string> addresses, ParseOptions? dtoOptions)
+    public ParseAddressesResponse? ParseAddress(List<string> addresses, ParseOptions? dtoOptions)
     {
         try
         {
@@ -33,7 +33,7 @@ public class LibPostalService : ILibPostalService
 
             dtoOptions?.MapValuesTo(domainOptions);
 
-            var results = new AddressParserResponse[addresses.Count];
+            AddressParserResponse[] results = new AddressParserResponse[addresses.Count];
 
             var successes = 0;
             var failures = 0;
@@ -59,7 +59,7 @@ public class LibPostalService : ILibPostalService
                     Console.WriteLine($"Error Inside Parse. Input: {addresses} : {ex}");
                 }
             }
-            return (results, successes, failures);
+            return new (results, results.Length, successes, failures);
         }
         catch (Exception ex)
         {
@@ -68,7 +68,7 @@ public class LibPostalService : ILibPostalService
         }
     }
 
-    public (AddressExpansionResponse[]? Results, int Successes, int Failures) ExpandAddress(List<string> addresses, ExpandOptions? dtoOptions)
+    public ExpandAddressesResponse? ExpandAddress(List<string> addresses, ExpandOptions? dtoOptions)
     {
         try
         {
@@ -76,7 +76,7 @@ public class LibPostalService : ILibPostalService
 
             dtoOptions?.MapValuesTo(domainOptions);
 
-            var results = new AddressExpansionResponse[addresses.Count];
+            AddressExpansionResponse[] results = new AddressExpansionResponse[addresses.Count];
 
             var successes = 0;
             var failures = 0;
@@ -103,7 +103,7 @@ public class LibPostalService : ILibPostalService
                     Console.WriteLine($"Error Inside Expand. Input: {addresses} : {ex}");
                 }
             }
-            return (results, successes, failures);
+            return new (results, results.Length, successes, failures);
         }
         catch (Exception ex)
         {
