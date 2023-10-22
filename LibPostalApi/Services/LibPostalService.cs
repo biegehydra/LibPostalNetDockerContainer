@@ -29,9 +29,9 @@ public class LibPostalService : ILibPostalService
     {
         try
         {
-            var domainOptions = _libPostal.GetAddressParserDefaultOptions();
+            var defaultOptions = _libPostal.GetAddressParserDefaultOptions();
 
-            dtoOptions?.MapValuesTo(domainOptions);
+            dtoOptions?.MapValuesTo(defaultOptions);
 
             AddressParserResponse[] results = new AddressParserResponse[addresses.Count];
 
@@ -48,7 +48,7 @@ public class LibPostalService : ILibPostalService
                         failures++;
                         continue;
                     }
-                    var result = _libPostal.ParseAddress(address, domainOptions);
+                    var result = _libPostal.ParseAddress(address, defaultOptions);
                     results[i] = result;
                     successes++;
                     i++;
@@ -72,9 +72,9 @@ public class LibPostalService : ILibPostalService
     {
         try
         {
-            var domainOptions = _libPostal.GetAddressExpansionDefaultOptions();
+            var defaultOptions = _libPostal.GetAddressExpansionDefaultOptions();
 
-            dtoOptions?.MapValuesTo(domainOptions);
+            dtoOptions?.MapValuesTo(defaultOptions);
 
             AddressExpansionResponse[] results = new AddressExpansionResponse[addresses.Count];
 
@@ -92,7 +92,7 @@ public class LibPostalService : ILibPostalService
                         failures++;
                         continue;
                     }
-                    var result = _libPostal.ExpandAddress(address, domainOptions);
+                    var result = _libPostal.ExpandAddress(address, defaultOptions);
                     results[i] = result;
                     successes++;
                     i++;
