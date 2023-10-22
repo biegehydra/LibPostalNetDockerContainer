@@ -33,6 +33,7 @@ app.MapControllers();
 app.MapHealthChecks("/health");
 app.Use(async (context, next) =>
 {
+    // Could fail a health check for taking to long if it has to initialize libpostal
     if (LibPostalService.Initialized && context.Request.Path.StartsWithSegments("/health"))
     {
         var libPostal = app.Services.GetRequiredService<ILibPostalService>();
