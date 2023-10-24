@@ -10,7 +10,7 @@ Downloads (From openvenues/libpostal AppVeyor CI):
 If you opt for downloading just extract the folder and put all its contents
 in the appropriate folder. (LibPostalNet/x64 or LibPostalNet/x86) 
 
-## Note
+### Note
 Downloading the LibPostal.dll doesn't mean you don't have to install LibPostal, it just
 means you don't have to build it. You still need to install it on your machine.
 
