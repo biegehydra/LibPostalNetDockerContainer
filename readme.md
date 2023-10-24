@@ -16,7 +16,7 @@ means you don't have to build it. You still need to install it on your machine.
 
 ### Install LibPostal on your machine
 
-Instructions can be found on their github https://github.com/openvenues/libpostal
+Instructions can be found on LibPostal's github https://github.com/openvenues/libpostal
 
 These are the instructions I used on my WINDOWS machine. WHEREVER YOU INSTALL LIBPOSTAL
 YOU MUST UPDATE THE APPSETTINGS.DEVELOPMENT.JSON FILE WITH THE APPROPRIATE PATH.
@@ -59,7 +59,8 @@ lib.exe /def:libpostal.def /out:libpostal.lib /machine:x64
 ## Instructions to run docker container locally
 
 When running this project in a docker container locally, you will want to take advantage of
-layer caching. To do this, open command prompt in the root of the project (with the docker file) and run the following
+layer caching; because installing LibPostal in a container takes a lot of time.
+To do this, open command prompt in the root of the project (with the docker file) and run the following
 
 ```
 docker build -t libpostalnet:v1 .
